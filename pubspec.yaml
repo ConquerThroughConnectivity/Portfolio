@@ -46,10 +46,18 @@ dependencies:
   http: ^1.6.0
   syncfusion_flutter_pdfviewer: ^31.2.16
   animate_do: ^4.2.0
-
+  flutter_launcher_icons: "^0.13.1"
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter_launcher_icons:
+  android: "launcher_icon" # Set to true or a name
+  ios: true
+  image_path: "lib/Assets/myprofile.jpg" # Path to your image
+  # If using adaptive icons:
+  adaptive_icon_background: "#ffffff" # Hex color or image path
+  adaptive_icon_foreground: "lib/Assets/myprofile.jpg"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

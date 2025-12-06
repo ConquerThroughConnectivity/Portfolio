@@ -32,7 +32,7 @@ navigateTo(
       ).position.animateTo(
         0,
         duration: const Duration(
-          milliseconds: 500,
+          milliseconds: 1000,
         ),
         curve: Curves.easeInOut,
       );
@@ -42,9 +42,9 @@ navigateTo(
       Scrollable.of(
         context,
       ).position.animateTo(
-        850,
+        950,
         duration: const Duration(
-          milliseconds: 500,
+          milliseconds: 1000,
         ),
         curve: Curves.easeInOut,
       );
@@ -56,7 +56,7 @@ navigateTo(
       ).position.animateTo(
         1750,
         duration: const Duration(
-          milliseconds: 500,
+          milliseconds: 1000,
         ),
         curve: Curves.easeInOut,
       );
@@ -66,9 +66,9 @@ navigateTo(
       Scrollable.of(
         context,
       ).position.animateTo(
-        5900,
+        6200,
         duration: const Duration(
-          milliseconds: 500,
+          milliseconds: 1000,
         ),
         curve: Curves.easeInOut,
       );
@@ -692,54 +692,241 @@ class _NavBarState
 
 class MainContentArea
     extends
-        StatelessWidget {
+        StatefulWidget {
   const MainContentArea({
     super.key,
   });
 
   @override
+  State<
+    MainContentArea
+  >
+  createState() => _MainContentAreaState();
+}
+
+class _MainContentAreaState
+    extends
+        State<
+          MainContentArea
+        > {
+  final GlobalKey _key = GlobalKey();
+  bool _isVisible = false;
+  bool _hasAnimated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Check visibility after first frame
+    WidgetsBinding.instance.addPostFrameCallback(
+      (
+        _,
+      ) {
+        _checkVisibility();
+        // Also check periodically in case initial check misses it
+        Future.delayed(
+          const Duration(
+            milliseconds: 500,
+          ),
+          () {
+            _checkVisibility();
+          },
+        );
+      },
+    );
+  }
+
+  void _checkVisibility() {
+    if (_hasAnimated ||
+        !mounted)
+      return;
+
+    final RenderObject? renderObject = _key.currentContext?.findRenderObject();
+    if (renderObject
+        is RenderBox) {
+      try {
+        // Get widget position relative to screen
+        final box =
+            renderObject
+                as RenderBox;
+        final position = box.localToGlobal(
+          Offset.zero,
+        );
+        final size = box.size;
+
+        // Get viewport dimensions
+        final screenHeight = MediaQuery.of(
+          context,
+        ).size.height;
+
+        // Calculate widget's position relative to screen
+        // position.dy is relative to the screen (0 = top of visible screen)
+        final widgetTop = position.dy;
+        final widgetBottom =
+            position.dy +
+            size.height;
+
+        // Widget is visible if it's in the viewport
+        // Trigger animation when widget enters viewport
+        // More lenient check - trigger when widget is approaching or visible
+        final padding = 500.0; // Large padding to trigger early
+        final isVisible =
+            widgetTop <
+                screenHeight +
+                    padding &&
+            widgetBottom >
+                -padding;
+
+        // Debug output (uncomment to test)
+        print(
+          'Visibility check: widgetTop=$widgetTop, widgetBottom=$widgetBottom, screenHeight=$screenHeight, isVisible=$isVisible, _isVisible=$_isVisible, _hasAnimated=$_hasAnimated',
+        );
+
+        if (isVisible &&
+            !_isVisible) {
+          if (mounted) {
+            print(
+              'MainContentArea triggering animation! widgetTop: $widgetTop, screenHeight: $screenHeight',
+            );
+            setState(
+              () {
+                _isVisible = true;
+                _hasAnimated = true;
+              },
+            );
+          }
+        }
+      } catch (
+        e
+      ) {
+        // If error, try to animate anyway after delay
+        if (!_hasAnimated &&
+            mounted) {
+          Future.delayed(
+            const Duration(
+              milliseconds: 1000,
+            ),
+            () {
+              if (!_hasAnimated &&
+                  mounted) {
+                setState(
+                  () {
+                    _isVisible = true;
+                    _hasAnimated = true;
+                  },
+                );
+              }
+            },
+          );
+        }
+      }
+    } else {
+      // If renderObject is null, try again after a short delay
+      Future.delayed(
+        const Duration(
+          milliseconds: 200,
+        ),
+        () {
+          if (!_hasAnimated &&
+              mounted) {
+            _checkVisibility();
+          }
+        },
+      );
+    }
+  }
+
+  @override
   Widget build(
     BuildContext context,
   ) {
-    // Responsive switching logic
-    return LayoutBuilder(
-      builder:
+    // Listen to scroll notifications
+    return NotificationListener<
+      ScrollNotification
+    >(
+      onNotification:
           (
-            context,
-            constraints,
+            ScrollNotification notification,
           ) {
-            if (constraints.maxWidth >
-                900) {
-              // Desktop: Two Columns
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 5,
-                    child: const LeftProfileSection(),
-                  ),
-                  SizedBox(
-                    width: 60.w,
-                  ),
-                  Expanded(
-                    flex: 4,
-                    child: const RightToolkitSection(),
-                  ),
-                ],
-              );
-            } else {
-              // Mobile/Tablet: Single Column
-              return Column(
-                children: [
-                  const LeftProfileSection(),
-                  SizedBox(
-                    height: 50.h,
-                  ),
-                  const RightToolkitSection(),
-                ],
+            // Check visibility on any scroll event
+            if (notification
+                    is ScrollUpdateNotification ||
+                notification
+                    is ScrollEndNotification ||
+                notification
+                    is ScrollStartNotification) {
+              // Check immediately and also after a small delay
+              _checkVisibility();
+              Future.delayed(
+                const Duration(
+                  milliseconds: 100,
+                ),
+                () {
+                  _checkVisibility();
+                },
               );
             }
+            return false;
           },
+      child: LayoutBuilder(
+        key: _key,
+        builder:
+            (
+              context,
+              constraints,
+            ) {
+              if (constraints.maxWidth >
+                  900) {
+                // Desktop: Two Columns
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 5,
+                      child: LeftProfileSection(
+                        key: ValueKey(
+                          'left_$_isVisible',
+                        ),
+                        shouldAnimate: _isVisible,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 60.w,
+                    ),
+                    Expanded(
+                      flex: 4,
+                      child: RightToolkitSection(
+                        key: ValueKey(
+                          'right_$_isVisible',
+                        ),
+                        shouldAnimate: _isVisible,
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                // Mobile/Tablet: Single Column
+                return Column(
+                  children: [
+                    LeftProfileSection(
+                      key: ValueKey(
+                        'left_mobile_$_isVisible',
+                      ),
+                      shouldAnimate: _isVisible,
+                    ),
+                    SizedBox(
+                      height: 50.h,
+                    ),
+                    RightToolkitSection(
+                      key: ValueKey(
+                        'right_mobile_$_isVisible',
+                      ),
+                      shouldAnimate: _isVisible,
+                    ),
+                  ],
+                );
+              }
+            },
+      ),
     );
   }
 }
@@ -747,8 +934,10 @@ class MainContentArea
 class LeftProfileSection
     extends
         StatelessWidget {
+  final bool shouldAnimate;
   const LeftProfileSection({
     super.key,
+    this.shouldAnimate = false,
   });
 
   @override
@@ -760,39 +949,48 @@ class LeftProfileSection
       children: [
         Row(
           children: [
-            CircleAvatar(
-              radius: 60.r,
-              backgroundImage: const NetworkImage(
-                'https://scontent-mnl3-2.xx.fbcdn.net/v/t39.30808-6/494035726_9900298010014291_1652607738040516680_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=GyA0tm0QtN4Q7kNvwHb6osX&_nc_oc=AdlU6IuIpy19PAk0WX8hXz6SaqEvreRIj8u_awF1Z9-pg_7GcjqDll_UVpNIvisP_aw&_nc_zt=23&_nc_ht=scontent-mnl3-2.xx&_nc_gid=9y29B4xT-8dxcc0v4ukO6g&oh=00_AfkF0mQ_fn1UY8-zj3P_OEh_EUys4XP0APSX-5XLvawRXg&oe=69348F6B',
-              ), // Placeholder
-              backgroundColor: Colors.grey,
-            ).fadeInUpBig(from:130),
+            _buildAnimatedWidget(
+              CircleAvatar(
+                radius: 60.r,
+                backgroundImage: const NetworkImage(
+                  'https://scontent-mnl3-2.xx.fbcdn.net/v/t39.30808-6/494035726_9900298010014291_1652607738040516680_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=GyA0tm0QtN4Q7kNvwHb6osX&_nc_oc=AdlU6IuIpy19PAk0WX8hXz6SaqEvreRIj8u_awF1Z9-pg_7GcjqDll_UVpNIvisP_aw&_nc_zt=23&_nc_ht=scontent-mnl3-2.xx&_nc_gid=9y29B4xT-8dxcc0v4ukO6g&oh=00_AfkF0mQ_fn1UY8-zj3P_OEh_EUys4XP0APSX-5XLvawRXg&oe=69348F6B',
+                ), // Placeholder
+                backgroundColor: Colors.grey,
+              ),
+              300,
+            ),
             SizedBox(
               width: 24.w,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Hello, Jayce Mico Dignadice",
-                  style: TextStyle(
-                    fontSize: 32.sp,
-                    fontWeight: FontWeight.bold,
+                _buildAnimatedWidget(
+                  Text(
+                    "Hello, Jayce Mico Dignadice",
+                    style: TextStyle(
+                      fontSize: 32.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ).fadeInUpBig(from: 160),
+                  330,
+                ),
                 SizedBox(
                   height: 5.h,
                 ),
-                Text(
-                  "Senior Flutter Developer",
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    color: const Color(
-                      0xFF00A3FF,
+                _buildAnimatedWidget(
+                  Text(
+                    "Senior Flutter Developer",
+                    style: TextStyle(
+                      fontSize: 20.sp,
+                      color: const Color(
+                        0xFF00A3FF,
+                      ),
+                      fontWeight: FontWeight.w600,
                     ),
-                    fontWeight: FontWeight.w600,
                   ),
-                ).fadeInUpBig(from: 190),
+                  360,
+                ),
               ],
             ),
           ],
@@ -800,35 +998,44 @@ class LeftProfileSection
         SizedBox(
           height: 40.h,
         ),
-        Text(
-          "My Story",
-          style: TextStyle(
-            fontSize: 24.sp,
-            fontWeight: FontWeight.bold,
+        _buildAnimatedWidget(
+          Text(
+            "My Story",
+            style: TextStyle(
+              fontSize: 24.sp,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ).fadeInUpBig(from: 230),
+          390,
+        ),
         SizedBox(
           height: 16.h,
         ),
-        Text(
-          "For over 5 years, I've been immersed in the world of mobile development, with a deep-seated passion for creating high-performance, beautiful applications using Flutter. My journey began with a fascination for turning complex problems into elegant, user-friendly solutions.",
-          style: TextStyle(
-            fontSize: 16.sp,
-            color: Colors.grey[400],
-            height: 1.6,
+        _buildAnimatedWidget(
+          Text(
+            "For over 5 years, I've been immersed in the world of mobile development, with a deep-seated passion for creating high-performance, beautiful applications using Flutter. My journey began with a fascination for turning complex problems into elegant, user-friendly solutions.",
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: Colors.grey[400],
+              height: 1.6,
+            ),
           ),
-        ).fadeInUpBig(from: 260),
+          420,
+        ),
         SizedBox(
           height: 16.h,
         ),
-        Text(
-          "I thrive on building products that not only function flawlessly but also provide a delightful and intuitive user experience. From architecting scalable app structures to polishing pixel-perfect UIs.",
-          style: TextStyle(
-            fontSize: 16.sp,
-            color: Colors.grey[400],
-            height: 1.6,
+        _buildAnimatedWidget(
+          Text(
+            "I thrive on building products that not only function flawlessly but also provide a delightful and intuitive user experience. From architecting scalable app structures to polishing pixel-perfect UIs.",
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: Colors.grey[400],
+              height: 1.6,
+            ),
           ),
-        ).fadeInUpBig(from: 290),
+          450,
+        ),
         SizedBox(
           height: 30.h,
         ),
@@ -841,32 +1048,55 @@ class LeftProfileSection
         // )
         Row(
           children: [
-            InkWell(
-              onTap: () => launchURL(
-                'https://github.com/ConquerThroughConnectivity',
+            _buildAnimatedWidget(
+              InkWell(
+                onTap: () => launchURL(
+                  'https://github.com/ConquerThroughConnectivity',
+                ),
+                child: Icon(
+                  FontAwesomeIcons.github,
+                  size: 40,
+                  color: Colors.white,
+                ),
               ),
-              child: Icon(
-                FontAwesomeIcons.github,
-                size: 40,
-                color: Colors.white,
-              ),
-            ).fadeInUpBig(from: 320),
+              320,
+            ),
             SizedBox(
               width: 20.w,
             ),
-            InkWell(
-              onTap: () => launchURL(
-                'https://www.upwork.com/freelancers/~0128102012664543dd',
+            _buildAnimatedWidget(
+              InkWell(
+                onTap: () => launchURL(
+                  'https://www.upwork.com/freelancers/~0128102012664543dd',
+                ),
+                child: Icon(
+                  FontAwesomeIcons.upwork,
+                  size: 40,
+                  color: Colors.white,
+                ),
               ),
-              child: Icon(
-                FontAwesomeIcons.upwork,
-                size: 40,
-                color: Colors.white,
-              ),
-            ).fadeInUpBig(from: 340),
+              340,
+            ),
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildAnimatedWidget(
+    Widget child,
+    int delay,
+  ) {
+    // Always use FadeInUpBig, but control it with shouldAnimate
+    // When shouldAnimate is false, the animation won't play
+    // When it becomes true, the widget rebuilds and animation plays
+    return FadeInUpBig(
+      from: delay.toDouble(),
+      duration: const Duration(
+        milliseconds: 800,
+      ),
+      animate: shouldAnimate,
+      child: child,
     );
   }
 }
@@ -874,8 +1104,10 @@ class LeftProfileSection
 class RightToolkitSection
     extends
         StatelessWidget {
+  final bool shouldAnimate;
   const RightToolkitSection({
     super.key,
+    this.shouldAnimate = false,
   });
 
   @override
@@ -905,52 +1137,67 @@ class RightToolkitSection
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "My Toolkit",
-                style: TextStyle(
-                  fontSize: 22.sp,
-                  fontWeight: FontWeight.bold,
+              _buildAnimatedWidget(
+                Text(
+                  "My Toolkit",
+                  style: TextStyle(
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ).fadeInUpBig(from: 130),
+                130,
+              ),
               SizedBox(
                 height: 24.h,
               ),
-              _skillGroup(
-                "MOBILE & CROSS-PLATFORM",
-                [
-                  "Flutter",
-                  "Dart",
-                  "Android (Kotlin/Java)",
-                  "iOS (Swift)",
-                ],
-              ).fadeInUpBig(from: 160),
-              _skillGroup(
-                "STATE MANAGEMENT",
-                [
-                  "Provider",
-                  "BLoC",
-                  "Riverpod",
-                ],
+              _buildAnimatedWidget(
+                _skillGroup(
+                  "MOBILE & CROSS-PLATFORM",
+                  [
+                    "Flutter",
+                    "Dart",
+                    "Android (Kotlin/Java)",
+                    "iOS (Swift)",
+                  ],
+                ),
+                160,
               ),
-              _skillGroup(
-                "BACKEND & CLOUD",
-                [
-                  "Firebase",
-                  "REST APIs",
-                  "Node.js",
-                  "Django",
-                  "Python",
-                  "Firestore",
-                ],
-              ).fadeInUpBig(from: 190),
-              _skillGroup(
-                "TOOLS & PLATFORMS",
-                [
-                  "Git & GitHub",
-                  "CI/CD",
-                  "VS Code",
-                ],
-              ).fadeInUpBig(from: 230)
+              _buildAnimatedWidget(
+                _skillGroup(
+                  "STATE MANAGEMENT",
+                  [
+                    "Provider",
+                    "BLoC",
+                    "Riverpod",
+                  ],
+                ),
+                175,
+              ),
+              _buildAnimatedWidget(
+                _skillGroup(
+                  "BACKEND & CLOUD",
+                  [
+                    "Firebase",
+                    "REST APIs",
+                    "Node.js",
+                    "Django",
+                    "Python",
+                    "Firestore",
+                  ],
+                ),
+                190,
+              ),
+              _buildAnimatedWidget(
+                _skillGroup(
+                  "TOOLS & PLATFORMS",
+                  [
+                    "Git & GitHub",
+                    "CI/CD",
+                    "VS Code",
+                  ],
+                ),
+                230,
+              ),
             ],
           ),
         ),
@@ -985,73 +1232,99 @@ class RightToolkitSection
           ),
           child: Column(
             children: [
-              Text(
-                "Looking to build a high-performance app?",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 22.sp,
-                  fontWeight: FontWeight.bold,
+              _buildAnimatedWidget(
+                Text(
+                  "Looking to build a high-performance app?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ).fadeInUpBig(from: 130),
+                130,
+              ),
               SizedBox(
                 height: 10.h,
               ),
-              Text(
-                "Let's connect and bring your vision to life. I'm available for new freelance projects.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15.sp,
-                  color: Colors.grey[300],
+              _buildAnimatedWidget(
+                Text(
+                  "Let's connect and bring your vision to life. I'm available for new freelance projects.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    color: Colors.grey[300],
+                  ),
                 ),
-              ).fadeInUpBig(from: 160),
+                160,
+              ),
               SizedBox(
                 height: 20.h,
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  final Uri uri = Uri.parse(
-                    "https://www.upwork.com/freelancers/~0128102012664543dd",
-                  );
-
-                  // Use launchUrl. It returns true if the URL was successfully launched.
-                  // We use await to pause execution until the function completes.
-                  if (!await launchUrl(
-                    uri,
-                    mode: LaunchMode.externalApplication,
-                  )) {
-                    // Handle the error if the link cannot be launched
-                    throw Exception(
-                      'Could not launch $_url',
+              _buildAnimatedWidget(
+                ElevatedButton(
+                  onPressed: () async {
+                    final Uri uri = Uri.parse(
+                      "https://www.upwork.com/freelancers/~0128102012664543dd",
                     );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(
-                    0xFF00A3FF,
+
+                    // Use launchUrl. It returns true if the URL was successfully launched.
+                    // We use await to pause execution until the function completes.
+                    if (!await launchUrl(
+                      uri,
+                      mode: LaunchMode.externalApplication,
+                    )) {
+                      // Handle the error if the link cannot be launched
+                      throw Exception(
+                        'Could not launch $_url',
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(
+                      0xFF00A3FF,
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 40.w,
+                      vertical: 18.h,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        8.r,
+                      ),
+                    ),
                   ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 40.w,
-                    vertical: 18.h,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      8.r,
+                  child: Text(
+                    "View My Upwork Profile",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.sp,
                     ),
                   ),
                 ),
-                child: Text(
-                  "View My Upwork Profile",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.sp,
-                  ),
-                ),
-              ).fadeInUpBig(from: 190),
+                190,
+              ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildAnimatedWidget(
+    Widget child,
+    int delay,
+  ) {
+    // Always use FadeInUpBig, but control it with shouldAnimate
+    // When shouldAnimate is false, the animation won't play
+    // When it becomes true, the widget rebuilds and animation plays
+    return FadeInUpBig(
+      from: delay.toDouble(),
+      duration: const Duration(
+        milliseconds: 800,
+      ),
+      animate: shouldAnimate,
+      child: child,
     );
   }
 

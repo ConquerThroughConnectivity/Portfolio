@@ -194,7 +194,6 @@ class ContactFormCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Header section
-        
           Icon(Icons.lock_outline, color: contentColor, size: 30),
           const SizedBox(height: 8),
           Center(
@@ -361,10 +360,20 @@ class ContactFormCard extends StatelessWidget {
         const SizedBox(height: 8),
         TextFormField(
           controller: textediting,
-          decoration: InputDecoration(hintText: hint),
+          decoration: InputDecoration(
+            hintText: hint,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: Colors.white),
+            ),
+            focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: Colors.white, width: 2),
+            ),
+          ),
           keyboardType: keyboardType,
           maxLines: maxLines,
-          style: TextStyle(color: _kTextColor), // Input text is now white/light
+          style: TextStyle(color: _kTextColor),
         ),
       ],
     );
