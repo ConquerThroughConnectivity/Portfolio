@@ -1,4 +1,6 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math';
 import 'dart:ui';
@@ -52,7 +54,7 @@ class HomePageApp extends StatelessWidget {
                 ],
               ),
               textAlign: TextAlign.center,
-            ),
+            ).fadeInUpBig(from: 180),
             SizedBox(height: 10.h),
 
             // Title/Motto
@@ -62,14 +64,14 @@ class HomePageApp extends StatelessWidget {
                 context,
               ).textTheme.titleMedium!.copyWith(fontSize: 22.sp, height: 1.5),
               textAlign: TextAlign.center,
-            ),
+            ).backInUp(animate: true, from: 100),
             SizedBox(height: 40.h),
 
             // Action Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildPrimaryButton(context, 'View My Work'),
+                _buildPrimaryButton(context, 'View My Work').fadeInUpBig(from: 50),
                 SizedBox(width: 20.w),
                 _buildIconButton(context, Icons.code_rounded), // GitHub icon
                 SizedBox(width: 10.w),
@@ -80,15 +82,15 @@ class HomePageApp extends StatelessWidget {
                 SizedBox(width: 10.w),
                 _buildIconButton(context, Icons.email_rounded), // Contact
               ],
-            ),
+            ).fadeInDownBig(from: 170),
           ],
         ),
-      ),
+      ),      
     );
   }
 }
-
-Widget _buildNavLink(String text) {
+ 
+Widget _buildNavLink(String text) {                                 
   return Padding(
     padding: EdgeInsets.symmetric(horizontal: 15.w),
     child: TextButton(

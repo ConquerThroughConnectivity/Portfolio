@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -765,7 +766,7 @@ class LeftProfileSection
                 'https://scontent-mnl3-2.xx.fbcdn.net/v/t39.30808-6/494035726_9900298010014291_1652607738040516680_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=GyA0tm0QtN4Q7kNvwHb6osX&_nc_oc=AdlU6IuIpy19PAk0WX8hXz6SaqEvreRIj8u_awF1Z9-pg_7GcjqDll_UVpNIvisP_aw&_nc_zt=23&_nc_ht=scontent-mnl3-2.xx&_nc_gid=9y29B4xT-8dxcc0v4ukO6g&oh=00_AfkF0mQ_fn1UY8-zj3P_OEh_EUys4XP0APSX-5XLvawRXg&oe=69348F6B',
               ), // Placeholder
               backgroundColor: Colors.grey,
-            ),
+            ).fadeInUpBig(from:130),
             SizedBox(
               width: 24.w,
             ),
@@ -778,7 +779,7 @@ class LeftProfileSection
                     fontSize: 32.sp,
                     fontWeight: FontWeight.bold,
                   ),
-                ),
+                ).fadeInUpBig(from: 160),
                 SizedBox(
                   height: 5.h,
                 ),
@@ -791,7 +792,7 @@ class LeftProfileSection
                     ),
                     fontWeight: FontWeight.w600,
                   ),
-                ),
+                ).fadeInUpBig(from: 190),
               ],
             ),
           ],
@@ -805,7 +806,7 @@ class LeftProfileSection
             fontSize: 24.sp,
             fontWeight: FontWeight.bold,
           ),
-        ),
+        ).fadeInUpBig(from: 230),
         SizedBox(
           height: 16.h,
         ),
@@ -816,7 +817,7 @@ class LeftProfileSection
             color: Colors.grey[400],
             height: 1.6,
           ),
-        ),
+        ).fadeInUpBig(from: 260),
         SizedBox(
           height: 16.h,
         ),
@@ -827,7 +828,7 @@ class LeftProfileSection
             color: Colors.grey[400],
             height: 1.6,
           ),
-        ),
+        ).fadeInUpBig(from: 290),
         SizedBox(
           height: 30.h,
         ),
@@ -849,7 +850,7 @@ class LeftProfileSection
                 size: 40,
                 color: Colors.white,
               ),
-            ),
+            ).fadeInUpBig(from: 320),
             SizedBox(
               width: 20.w,
             ),
@@ -862,7 +863,7 @@ class LeftProfileSection
                 size: 40,
                 color: Colors.white,
               ),
-            ),
+            ).fadeInUpBig(from: 340),
           ],
         ),
       ],
@@ -910,7 +911,7 @@ class RightToolkitSection
                   fontSize: 22.sp,
                   fontWeight: FontWeight.bold,
                 ),
-              ),
+              ).fadeInUpBig(from: 130),
               SizedBox(
                 height: 24.h,
               ),
@@ -922,7 +923,7 @@ class RightToolkitSection
                   "Android (Kotlin/Java)",
                   "iOS (Swift)",
                 ],
-              ),
+              ).fadeInUpBig(from: 160),
               _skillGroup(
                 "STATE MANAGEMENT",
                 [
@@ -941,7 +942,7 @@ class RightToolkitSection
                   "Python",
                   "Firestore",
                 ],
-              ),
+              ).fadeInUpBig(from: 190),
               _skillGroup(
                 "TOOLS & PLATFORMS",
                 [
@@ -949,7 +950,7 @@ class RightToolkitSection
                   "CI/CD",
                   "VS Code",
                 ],
-              ),
+              ).fadeInUpBig(from: 230)
             ],
           ),
         ),
@@ -991,7 +992,7 @@ class RightToolkitSection
                   fontSize: 22.sp,
                   fontWeight: FontWeight.bold,
                 ),
-              ),
+              ).fadeInUpBig(from: 130),
               SizedBox(
                 height: 10.h,
               ),
@@ -1002,7 +1003,7 @@ class RightToolkitSection
                   fontSize: 15.sp,
                   color: Colors.grey[300],
                 ),
-              ),
+              ).fadeInUpBig(from: 160),
               SizedBox(
                 height: 20.h,
               ),
@@ -1046,7 +1047,7 @@ class RightToolkitSection
                     fontSize: 16.sp,
                   ),
                 ),
-              ),
+              ).fadeInUpBig(from: 190),
             ],
           ),
         ),

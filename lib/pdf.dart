@@ -967,12 +967,12 @@ generatePortfolioPdf() async {
                 ),
 
                 pw.SizedBox(
-                  width: 30,
+                  width: 50,
                 ),
 
                 // RIGHT COLUMN
                 pw.Expanded(
-                  flex: 4,
+                  flex: 5,
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [

@@ -45,6 +45,8 @@ dependencies:
   flutter_animate: ^4.5.2
   http: ^1.6.0
   syncfusion_flutter_pdfviewer: ^31.2.16
+  animate_do: ^4.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
