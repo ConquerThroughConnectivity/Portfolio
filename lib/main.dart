@@ -676,9 +676,7 @@ class LeftProfileSection extends StatelessWidget {
             _buildAnimatedWidget(
               CircleAvatar(
                 radius: 60.r,
-                backgroundImage: NetworkImage(
-                  'https://scontent-mnl3-2.xx.fbcdn.net/v/t39.30808-6/494035726_9900298010014291_1652607738040516680_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=GyA0tm0QtN4Q7kNvwHb6osX&_nc_oc=AdlU6IuIpy19PAk0WX8hXz6SaqEvreRIj8u_awF1Z9-pg_7GcjqDll_UVpNIvisP_aw&_nc_zt=23&_nc_ht=scontent-mnl3-2.xx&_nc_gid=9y29B4xT-8dxcc0v4ukO6g&oh=00_AfkF0mQ_fn1UY8-zj3P_OEh_EUys4XP0APSX-5XLvawRXg&oe=69348F6B',
-                ), // Placeholder
+                backgroundImage: AssetImage("lib/Assets/myprofile.jpg"),
                 backgroundColor: Colors.grey,
               ),
               300,

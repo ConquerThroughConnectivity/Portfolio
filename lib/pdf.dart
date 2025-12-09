@@ -285,24 +285,14 @@ generateHomePagePdf() async {
                               // Profile Header
                               pw.Row(
                                 children: [
-                                  profileImage !=
-                                          null
-                                      ? pw.Container(
+                                 pw.Container(
                                           width: 150,
                                           height: 150,
                                           child: pw.ClipOval(
                                             child: pw.Image(
-                                              profileImage,
+                                              profileImage!,
                                               fit: pw.BoxFit.cover,
                                             ),
-                                          ),
-                                        )
-                                      : pw.Container(
-                                          width: 150,
-                                          height: 150,
-                                          decoration: pw.BoxDecoration(
-                                            shape: pw.BoxShape.circle,
-                                            color: PdfColors.grey300,
                                           ),
                                         ),
                                   pw.SizedBox(
