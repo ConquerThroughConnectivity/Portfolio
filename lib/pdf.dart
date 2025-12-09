@@ -117,7 +117,15 @@ generateHomePagePdf() async {
   // Load Unicode-safe fonts
   final pw.Font regularFont = await PdfGoogleFonts.openSansRegular();
   final pw.Font boldFont = await PdfGoogleFonts.openSansBold();
+  final ByteData bytes = await rootBundle.load(
+    'lib/Assets/myprofile.jpg',
+  );
+  final Uint8List byteList = bytes.buffer.asUint8List();
 
+  // 2. Create a PDF image from the byte data
+  final pw.ImageProvider imageProvider = pw.MemoryImage(
+    byteList,
+  );
   // ---------------------------------------------------------------------------
   // Profile image with safe fallback to avoid "unable to guess image type"
   // ---------------------------------------------------------------------------
@@ -285,16 +293,26 @@ generateHomePagePdf() async {
                               // Profile Header
                               pw.Row(
                                 children: [
-                                 pw.Container(
-                                          width: 150,
-                                          height: 150,
-                                          child: pw.ClipOval(
-                                            child: pw.Image(
-                                              profileImage!,
-                                              fit: pw.BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
+                                  // pw.Container(
+                                  //   width: 150,
+                                  //   height: 150,
+                                  //   child: pw.ClipOval(
+                                  //     child: pw.Image(
+                                  //       profileImage!,
+                                  //       fit: pw.BoxFit.cover,
+                                  //     ),
+                                  //   ),
+                                  // ),
+                                  pw.Center(
+                                    child: pw.ClipOval(
+                                      child: pw.Image(
+                                        imageProvider,
+                                        width: 200,
+                                        height: 200,
+                                        fit: pw.BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
                                   pw.SizedBox(
                                     width: 20,
                                   ),
