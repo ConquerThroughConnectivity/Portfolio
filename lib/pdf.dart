@@ -118,14 +118,31 @@ generateHomePagePdf() async {
   final pw.Font regularFont = await PdfGoogleFonts.openSansRegular();
   final pw.Font boldFont = await PdfGoogleFonts.openSansBold();
 
-  final response = await http.get(
-    Uri.parse(
-      "https://scontent-mnl3-2.xx.fbcdn.net/v/t39.30808-6/494035726_9900298010014291_1652607738040516680_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=GyA0tm0QtN4Q7kNvwHb6osX&_nc_oc=AdlU6IuIpy19PAk0WX8hXz6SaqEvreRIj8u_awF1Z9-pg_7GcjqDll_UVpNIvisP_aw&_nc_zt=23&_nc_ht=scontent-mnl3-2.xx&_nc_gid=9y29B4xT-8dxcc0v4ukO6g&oh=00_AfkF0mQ_fn1UY8-zj3P_OEh_EUys4XP0APSX-5XLvawRXg&oe=69348F6B",
-    ),
-  );
-  final profileImage = pw.MemoryImage(
-    response.bodyBytes,
-  );
+  // ---------------------------------------------------------------------------
+  // Profile image with safe fallback to avoid "unable to guess image type"
+  // ---------------------------------------------------------------------------
+  pw.MemoryImage? profileImage;
+  try {
+    final response = await http.get(
+      Uri.parse(
+        "https://scontent-mnl3-2.xx.fbcdn.net/v/t39.30808-6/494035726_9900298010014291_1652607738040516680_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=GyA0tm0QtN4Q7kNvwHb6osX&_nc_oc=AdlU6IuIpy19PAk0WX8hXz6SaqEvreRIj8u_awF1Z9-pg_7GcjqDll_UVpNIvisP_aw&_nc_zt=23&_nc_ht=scontent-mnl3-2.xx&_nc_gid=9y29B4xT-8dxcc0v4ukO6g&oh=00_AfkF0mQ_fn1UY8-zj3P_OEh_EUys4XP0APSX-5XLvawRXg&oe=69348F6B",
+      ),
+    );
+
+    // Only use if the response is valid and reasonably large
+    if (response.statusCode ==
+            200 &&
+        response.bodyBytes.length >
+            1000) {
+      profileImage = pw.MemoryImage(
+        response.bodyBytes,
+      );
+    }
+  } catch (
+    _
+  ) {
+    // swallow and fall back to placeholder
+  }
 
   pdf.addPage(
     pw.Page(
@@ -268,16 +285,26 @@ generateHomePagePdf() async {
                               // Profile Header
                               pw.Row(
                                 children: [
-                                  pw.Container(
-                                    width: 150,
-                                    height: 150,
-                                    child: pw.ClipOval(
-                                      child: pw.Image(
-                                        profileImage,
-                                        fit: pw.BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
+                                  profileImage !=
+                                          null
+                                      ? pw.Container(
+                                          width: 150,
+                                          height: 150,
+                                          child: pw.ClipOval(
+                                            child: pw.Image(
+                                              profileImage,
+                                              fit: pw.BoxFit.cover,
+                                            ),
+                                          ),
+                                        )
+                                      : pw.Container(
+                                          width: 150,
+                                          height: 150,
+                                          decoration: pw.BoxDecoration(
+                                            shape: pw.BoxShape.circle,
+                                            color: PdfColors.grey300,
+                                          ),
+                                        ),
                                   pw.SizedBox(
                                     width: 20,
                                   ),
