@@ -638,10 +638,7 @@ class _MainContentAreaState extends State<MainContentArea> {
             );
           } else {
             // Mobile/Tablet: Single Column
-          return ListView(
-            scrollDirection: Axis.horizontal,
-            controller: _scrollController,
-            children: [  Column(
+            return Column(
               children: [
                 LeftProfileSection(
                   key: ValueKey('left_mobile_$_isVisible'),
@@ -653,8 +650,7 @@ class _MainContentAreaState extends State<MainContentArea> {
                   shouldAnimate: _isVisible,
                 ),
               ],
-            )],
-          );
+            );
           }
         },
       ),
