@@ -66,7 +66,7 @@ void navigateTo(BuildContext context, String section) {
 //     }
 //   }
 /// Launches external URLs
-Future<void> launchURL(String urlString) async {
+Future<void> launchURL(String urlString) async {  
   final Uri url = Uri.parse(urlString);
   if (await canLaunchUrl(url)) {
     await launchUrl(url, mode: LaunchMode.externalApplication);

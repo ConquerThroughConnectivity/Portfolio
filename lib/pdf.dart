@@ -407,7 +407,7 @@ generateHomePagePdf() async {
                         ),
 
                         pw.SizedBox(
-                          width: 10,
+                          width: 50,
                         ),
 
                         pw.Expanded(
@@ -416,7 +416,7 @@ generateHomePagePdf() async {
                             crossAxisAlignment: pw.CrossAxisAlignment.start,
                             children: [
                               pw.SizedBox(
-                                height: 80,
+                                height: 130,
                               ),
                               pw.Text(
                                 "My Toolkit",
@@ -426,7 +426,7 @@ generateHomePagePdf() async {
                                 ),
                               ),
                               pw.SizedBox(
-                                height: 70,
+                                height: 20,
                               ),
                               skillGroup(
                                 "MOBILE & CROSS-PLATFORM",
@@ -1002,7 +1002,7 @@ generatePortfolioPdf() async {
                 ),
 
                 pw.SizedBox(
-                  width: 50,
+                  width: 110,
                 ),
 
                 // RIGHT COLUMN
