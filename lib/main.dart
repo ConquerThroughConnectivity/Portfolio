@@ -282,7 +282,7 @@ class _NavBarState extends State<NavBar> {
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = MediaQuery.of(context).size.width < 800;
+    bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
